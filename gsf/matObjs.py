@@ -7,11 +7,15 @@ _dir = "C:\\mednick\\gsf\\GSF\\Nap\\"
 
 os.chdir(_dir)
 files = []
+
 for _file in os.listdir(_dir):
     if _file.endswith('.mat'):
         files.append(_file)
 
 for _file in files:
+    prefile = _file.replace(_file[:8],'')
+    _id = prefile.replace(prefile[3:],'')
+    
     matObj = scipy.io.loadmat(_file)
     matData = matObj['stageData']
 
@@ -28,7 +32,21 @@ for _file in files:
     timesStr = ','.join(epochTimes)
     _array = ';'.join([stagesStr, timesStr])
 
-    
-#    newPath = _file.replace(".mat",".csv")
-#    with open(newPath, 'w') as newFile:
-#        newFile.write(_array)
+    for l in range(0,len(epochStages)):
+        epochStages[l] = int(epochStages[l])
+    for l in range(0,len(epochStages)):
+        epochTimes[l] = round(float(epochTimes[l]), 1)
+
+    jsonDict = {"subjectID":int(_id),
+                "epochTimes":epochTimes,
+                "epochStages":epochStages
+                }
+
+    jsonString = json.dumps(jsonDict)
+
+    print(jsonDict)
+    print(jsonString)
+
+    newPath = _file.replace(".mat",".json")
+    with open(newPath, 'w') as newFile:
+        newFile.write(_array)
